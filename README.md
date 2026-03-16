@@ -15,15 +15,20 @@ Ce programme est écrit dans un langage appelé "Go". Pour le transformer en app
 1. Ouvrez votre navigateur et allez sur : [https://go.dev/doc/install](https://go.dev/doc/install).
 2. Téléchargez et installez la version correspondant à votre ordinateur (Windows, Mac, ou Linux).
 
-### Étape 2 : Installer `btop` comme une commande système
+### Étape 2 : Télécharger et installer `btop`
 Nous avons créé un petit script pour tout installer automatiquement à votre place. 
-1. Ouvrez votre terminal, placez-vous dans le dossier de `btop`
-2. Rendez le script exécutable avec la commande suivante :
+1. Ouvrez votre terminal (par exemple en cherchant "Terminal" dans vos applications).
+2. Téléchargez le code source sur votre ordinateur (cela va créer un dossier `btop`) :
+   ```sh
+   git clone https://github.com/7Bhil/btop.git
+   ```
+3. Entrez dans ce nouveau dossier :
+   ```sh
+   cd btop
+   ```
+4. Rendez le script d'installation exécutable et lancez-le :
    ```sh
    chmod +x install.sh
-   ```
-3. Lancez le script d'installation :
-   ```sh
    ./install.sh
    ```
 *(Note : Il se peut que l'ordinateur vous demande votre mot de passe administrateur, c'est normal, c'est pour placer la commande `btop` au même endroit que vos autres commandes système).*
