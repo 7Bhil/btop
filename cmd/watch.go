@@ -9,7 +9,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var autoKill bool
+var (
+	autoKill bool
+	interval int
+)
 
 var watchCmd = &cobra.Command{
 	Use:   "watch",
@@ -49,5 +52,6 @@ var watchCmd = &cobra.Command{
 
 func init() {
 	watchCmd.Flags().BoolVar(&autoKill, "auto-kill", false, "Tuer automatiquement les processus dépassant le seuil")
+	watchCmd.Flags().IntVar(&interval, "interval", 2, "intervalle de vérification en secondes")
 	rootCmd.AddCommand(watchCmd)
 }
