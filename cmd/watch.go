@@ -17,7 +17,7 @@ var watchCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		yellow := color.New(color.FgYellow).SprintFunc()
 		for {
-			procs, err := monitor.GetTopProcesses(0) // Limite 0 = tous les processus
+			procs, err := monitor.GetTopProcesses(0, "cpu", "", "") // Limite 0 = tous les processus
 			if err == nil {
 				for _, p := range procs {
 					if p.CPU > 80 || p.RAM > 80 {

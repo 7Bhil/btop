@@ -22,13 +22,16 @@ Vous pourrez ensuite l'utiliser de n'importe où en tapant `btop`.
 ## 🛠 Commandes & Utilisation
 
 ### `btop`
-Affiche un tableau en temps réel des processus les plus gourmands (rafraîchi toutes les 2 secondes).
+Affiche un tableau en temps réel des processus les plus gourmands (rafraîchi toutes les 2 secondes), ainsi qu'un résumé de la charge CPU et RAM globale du système.
 
 **Options :**
 - `--limit` : Nombre de processus à afficher (défaut : 10)
 - `--interval` : Intervalle de rafraîchissement en secondes (défaut : 2)
+- `--sort` : Champ de tri : `cpu`, `ram`, `mem`, `pid`, `name` (défaut : `cpu`)
+- `--name` : Filtrer la liste par nom de processus (ex: `--name chrome`)
+- `--user` : Filtrer la liste par propriétaire du processus
 
-Exemple : `btop --interval 1 --limit 15`
+Exemple : `btop --interval 1 --limit 15 --sort ram --name firefox`
 
 ### `btop kill <pid>`
 Tuer un processus avec son PID.
