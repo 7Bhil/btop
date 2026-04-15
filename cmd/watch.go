@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"btop/internal/monitor"
+	"killerprocess/internal/monitor"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )

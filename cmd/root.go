@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"btop/internal/tui"
+	"killerprocess/internal/tui"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 )
@@ -17,7 +17,7 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "btop",
+	Use:   "killerprocess",
 	Short: "Un utilitaire CLI interactif pour surveiller les processus du système",
 	Run: func(cmd *cobra.Command, args []string) {
 		p := tea.NewProgram(

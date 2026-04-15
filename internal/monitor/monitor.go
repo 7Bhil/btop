@@ -3,9 +3,13 @@ package monitor
 import (
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/shirou/gopsutil/v3/disk"
+	"github.com/shirou/gopsutil/v3/host"
 	"github.com/shirou/gopsutil/v3/mem"
+	"github.com/shirou/gopsutil/v3/net"
 	"github.com/shirou/gopsutil/v3/process"
 )
 
@@ -22,6 +26,39 @@ type SystemMetrics struct {
 	CPUPercent float64
 	TotalRAM   uint64
 	UsedRAM    uint64
+
+	NetTxPerSec     uint64
+	NetRxPerSec     uint64
+	DiskReadPerSec  uint64
+	DiskWritePerSec uint64
+	Temperatures    []host.TemperatureStat
+}
+
+var lastNetStats net.IOCountersStat
+var lastDiskStats disk.IOCountersStat
+var lastTime time.Time
+
+func init() {
+	lastTime = time.Now()
+	if nets, err := net.IOCounters(false); err == nil && len(nets) > 0 {
+		lastNetStats = nets[0]
+	}
+	if disks, err := disk.IOCounters(); err == nil {
+		for _, d := range disks {
+			lastDiskStats.ReadBytes += d.ReadBytes
+			lastDiskStats.WriteBytes += d.WriteBytes
+		}
+	}
+}
+
+type ProcessDetails struct {
+	PID         int32
+	Exe         string
+	Cmdline     string
+	Cwd         string
+	Connections int
+	Threads     int
+	Status      string
 }
 
 var procCache = make(map[int32]*process.Process)
@@ -39,6 +76,37 @@ func GetSystemMetrics() (SystemMetrics, error) {
 		metrics.TotalRAM = vmStat.Total
 		metrics.UsedRAM = vmStat.Used
 	}
+
+	now := time.Now()
+	elapsed := now.Sub(lastTime).Seconds()
+
+	if nets, err := net.IOCounters(false); err == nil && len(nets) > 0 {
+		if elapsed > 0 {
+			metrics.NetTxPerSec = uint64(float64(nets[0].BytesSent-lastNetStats.BytesSent) / elapsed)
+			metrics.NetRxPerSec = uint64(float64(nets[0].BytesRecv-lastNetStats.BytesRecv) / elapsed)
+		}
+		lastNetStats = nets[0]
+	}
+
+	if disks, err := disk.IOCounters(); err == nil {
+		var totalRead, totalWrite uint64
+		for _, d := range disks {
+			totalRead += d.ReadBytes
+			totalWrite += d.WriteBytes
+		}
+		if elapsed > 0 {
+			metrics.DiskReadPerSec = uint64(float64(totalRead-lastDiskStats.ReadBytes) / elapsed)
+			metrics.DiskWritePerSec = uint64(float64(totalWrite-lastDiskStats.WriteBytes) / elapsed)
+		}
+		lastDiskStats.ReadBytes = totalRead
+		lastDiskStats.WriteBytes = totalWrite
+	}
+
+	if temps, err := host.SensorsTemperatures(); err == nil {
+		metrics.Temperatures = temps
+	}
+
+	lastTime = now
 
 	return metrics, nil
 }
@@ -148,4 +216,22 @@ func KillProcess(pid int32) error {
 		return err
 	}
 	return p.Kill()
+}
+
+func GetProcessDetails(pid int32) ProcessDetails {
+	var details ProcessDetails
+	details.PID = pid
+	p, err := process.NewProcess(pid)
+	if err != nil {
+		return details
+	}
+	
+	if exe, err := p.Exe(); err == nil { details.Exe = exe }
+	if cmd, err := p.Cmdline(); err == nil { details.Cmdline = cmd }
+	if cwd, err := p.Cwd(); err == nil { details.Cwd = cwd }
+	if st, err := p.Status(); err == nil && len(st) > 0 { details.Status = st[0] }
+	if num, err := p.NumThreads(); err == nil { details.Threads = int(num) }
+	if conns, err := p.Connections(); err == nil { details.Connections = len(conns) }
+
+	return details
 }

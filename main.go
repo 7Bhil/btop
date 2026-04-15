@@ -1,6 +1,6 @@
 package main
 
-import "btop/cmd"
+import "killerprocess/cmd"
 
 func main() {
 	cmd.Execute()
